@@ -104,6 +104,19 @@ if st.session_state.current_orientation is None:
 # Title and score
 st.title("👁️ Gabor Orientation Game")
 
+# Instructions at the top
+st.markdown("### 🎮 How to Play")
+st.markdown("""
+Identify the orientation of the Gabor patch and select your answer:
+- **Horizontal (→)**: Stripes go left-right
+- **Vertical (↑)**: Stripes go up-down  
+- **Diagonal (↗)**: Stripes go at 45°
+
+Contrast decreases with each correct answer - see how high you can score!
+""")
+
+st.markdown("---")
+
 current_contrast = calculate_contrast(st.session_state.score)
 col1, col2, col3 = st.columns(3)
 with col1:
@@ -149,16 +162,7 @@ ax.axis('on')
 st.pyplot(fig)
 plt.close()
 
-# Instructions
-st.markdown("### 🎮 How to Play")
-st.markdown("""
-Identify the orientation of the Gabor patch and select your answer below:
-- **Horizontal (→)**: Stripes go left-right
-- **Vertical (↑)**: Stripes go up-down  
-- **Diagonal (↗)**: Stripes go at 45°
-""")
-
-# Answer buttons
+# Answer buttons - directly under the patch
 st.markdown("### Select Orientation:")
 col1, col2, col3 = st.columns(3)
 
