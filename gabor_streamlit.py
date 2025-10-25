@@ -3,6 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from PIL import Image
 import io
+import time
 
 # Page configuration
 st.set_page_config(
@@ -22,8 +23,8 @@ if 'feedback' not in st.session_state:
     st.session_state.feedback = ""
 if 'feedback_color' not in st.session_state:
     st.session_state.feedback_color = "blue"
-if 'awaiting_answer' not in st.session_state:
-    st.session_state.awaiting_answer = True
+if 'show_feedback' not in st.session_state:
+    st.session_state.show_feedback = False
 
 # Game parameters
 CPD_OPTIONS = [3, 6, 12, 15]
@@ -70,12 +71,13 @@ def generate_new_patch():
     """Generate new random Gabor patch"""
     st.session_state.current_cpd = np.random.choice(CPD_OPTIONS)
     st.session_state.current_orientation = np.random.choice(ORIENTATION_OPTIONS)
-    st.session_state.awaiting_answer = True
     st.session_state.feedback = ""
+    st.session_state.show_feedback = False
 
 def check_answer(guessed_orientation):
     """Check if the answer is correct and update score"""
-    if not st.session_state.awaiting_answer:
+    if st.session_state.show_feedback:
+        # Already showing feedback, ignore additional clicks
         return
     
     if guessed_orientation == st.session_state.current_orientation:
@@ -87,7 +89,7 @@ def check_answer(guessed_orientation):
         st.session_state.feedback = f"✗ Wrong! It was {correct_name}"
         st.session_state.feedback_color = "red"
     
-    st.session_state.awaiting_answer = False
+    st.session_state.show_feedback = True
 
 def reset_game():
     """Reset the game"""
@@ -114,11 +116,19 @@ with col3:
         st.rerun()
 
 # Show feedback if available
-if st.session_state.feedback:
+if st.session_state.show_feedback:
     if st.session_state.feedback_color == "green":
         st.success(st.session_state.feedback)
     else:
         st.error(st.session_state.feedback)
+    
+    # Auto-advance after showing feedback
+    time.sleep(1.2)
+    generate_new_patch()
+    st.rerun()
+elif st.session_state.feedback:
+    # Clear old feedback
+    st.session_state.feedback = ""
 
 # Generate and display Gabor patch
 gabor = generate_gabor(
@@ -165,13 +175,6 @@ with col2:
 with col3:
     if st.button("↗ Diagonal (45°)", key="diagonal", use_container_width=True, type="primary"):
         check_answer(45)
-        st.rerun()
-
-# Next button (only show after answering)
-if not st.session_state.awaiting_answer:
-    st.markdown("---")
-    if st.button("➡️ Next Patch", use_container_width=True, type="secondary"):
-        generate_new_patch()
         st.rerun()
 
 # Sidebar with info
