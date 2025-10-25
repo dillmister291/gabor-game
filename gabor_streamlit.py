@@ -3,7 +3,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 from PIL import Image
 import io
-import time
 
 # Page configuration
 st.set_page_config(
@@ -23,8 +22,8 @@ if 'feedback' not in st.session_state:
     st.session_state.feedback = ""
 if 'feedback_color' not in st.session_state:
     st.session_state.feedback_color = "blue"
-if 'show_feedback' not in st.session_state:
-    st.session_state.show_feedback = False
+if 'waiting_for_next' not in st.session_state:
+    st.session_state.waiting_for_next = False
 
 # Game parameters
 CPD_OPTIONS = [3, 6, 12, 15]
@@ -72,12 +71,11 @@ def generate_new_patch():
     st.session_state.current_cpd = np.random.choice(CPD_OPTIONS)
     st.session_state.current_orientation = np.random.choice(ORIENTATION_OPTIONS)
     st.session_state.feedback = ""
-    st.session_state.show_feedback = False
+    st.session_state.waiting_for_next = False
 
 def check_answer(guessed_orientation):
     """Check if the answer is correct and update score"""
-    if st.session_state.show_feedback:
-        # Already showing feedback, ignore additional clicks
+    if st.session_state.waiting_for_next:
         return
     
     if guessed_orientation == st.session_state.current_orientation:
@@ -89,12 +87,13 @@ def check_answer(guessed_orientation):
         st.session_state.feedback = f"✗ Wrong! It was {correct_name}"
         st.session_state.feedback_color = "red"
     
-    st.session_state.show_feedback = True
+    st.session_state.waiting_for_next = True
 
 def reset_game():
     """Reset the game"""
     st.session_state.score = 0
     st.session_state.feedback = ""
+    st.session_state.waiting_for_next = False
     generate_new_patch()
 
 # Initialize game if needed
@@ -128,19 +127,18 @@ with col3:
         reset_game()
         st.rerun()
 
-# Show feedback if available  
-if st.session_state.show_feedback:
+# Show feedback if available
+if st.session_state.feedback:
     if st.session_state.feedback_color == "green":
         st.success(st.session_state.feedback)
     else:
         st.error(st.session_state.feedback)
-    
-    # Generate new patch and clear feedback
-    st.session_state.show_feedback = False
-    generate_new_patch()
-    
+
 # Generate and display Gabor patch
-with st.container():
+# Use a placeholder to keep position stable
+patch_placeholder = st.empty()
+
+with patch_placeholder.container():
     gabor = generate_gabor(
         st.session_state.current_cpd,
         st.session_state.current_orientation,
@@ -161,22 +159,30 @@ with st.container():
 
 # Answer buttons - directly under the patch
 st.markdown("### Select Orientation:")
-col1, col2, col3 = st.columns(3)
 
-with col1:
-    if st.button("← Horizontal (0°)", key="horizontal", use_container_width=True, type="primary", disabled=st.session_state.show_feedback):
-        check_answer(0)
+if st.session_state.waiting_for_next:
+    # Show "Next" button after answering
+    if st.button("➡️ Next Patch", use_container_width=True, type="secondary", key="next_button"):
+        generate_new_patch()
         st.rerun()
+else:
+    # Show answer buttons
+    col1, col2, col3 = st.columns(3)
 
-with col2:
-    if st.button("↑ Vertical (90°)", key="vertical", use_container_width=True, type="primary", disabled=st.session_state.show_feedback):
-        check_answer(90)
-        st.rerun()
+    with col1:
+        if st.button("← Horizontal (0°)", key="horizontal", use_container_width=True, type="primary"):
+            check_answer(0)
+            st.rerun()
 
-with col3:
-    if st.button("↗ Diagonal (45°)", key="diagonal", use_container_width=True, type="primary", disabled=st.session_state.show_feedback):
-        check_answer(45)
-        st.rerun()
+    with col2:
+        if st.button("↑ Vertical (90°)", key="vertical", use_container_width=True, type="primary"):
+            check_answer(90)
+            st.rerun()
+
+    with col3:
+        if st.button("↗ Diagonal (45°)", key="diagonal", use_container_width=True, type="primary"):
+            check_answer(45)
+            st.rerun()
 
 # Sidebar with info
 with st.sidebar:
