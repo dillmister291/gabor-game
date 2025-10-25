@@ -159,7 +159,7 @@ ax.set_title('What is the orientation?', fontsize=14, fontweight='bold')
 ax.axis('on')
 
 # Display the figure
-st.pyplot(fig)
+st.pyplot(fig, use_container_width=True)
 plt.close()
 
 # Answer buttons - directly under the patch
