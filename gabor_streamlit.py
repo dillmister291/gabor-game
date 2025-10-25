@@ -3,7 +3,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 from PIL import Image
 import io
-import time
 
 # Page configuration
 st.set_page_config(
@@ -136,7 +135,6 @@ if st.session_state.show_feedback:
         st.error(st.session_state.feedback)
     
     # Auto-advance after showing feedback
-    time.sleep(.1)
     generate_new_patch()
     st.rerun()
 elif st.session_state.feedback:
