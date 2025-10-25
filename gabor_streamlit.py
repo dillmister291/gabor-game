@@ -31,7 +31,7 @@ ORIENTATION_OPTIONS = [0, 45, 90]
 ORIENTATION_NAMES = {0: "Horizontal (→)", 45: "Diagonal (↗)", 90: "Vertical (↑)"}
 
 # Contrast parameters
-INITIAL_CONTRAST = 1.0
+INITIAL_CONTRAST = .5
 MIN_CONTRAST = 0.0
 CONTRAST_DECAY_RATE = 0.08
 
