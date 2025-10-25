@@ -136,7 +136,7 @@ if st.session_state.show_feedback:
         st.error(st.session_state.feedback)
     
     # Auto-advance after showing feedback
-    time.sleep(1.2)
+    time.sleep(.5)
     generate_new_patch()
     st.rerun()
 elif st.session_state.feedback:
@@ -159,7 +159,7 @@ ax.set_title('What is the orientation?', fontsize=14, fontweight='bold')
 ax.axis('on')
 
 # Display the figure
-st.pyplot(fig, use_container_width=True)
+st.pyplot(fig)
 plt.close()
 
 # Answer buttons - directly under the patch
