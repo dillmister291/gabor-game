@@ -126,55 +126,57 @@ with col2:
 with col3:
     if st.button("Reset Game", use_container_width=True):
         reset_game()
+        st.rerun()
 
-# Show feedback if available
+# Show feedback if available  
 if st.session_state.show_feedback:
     if st.session_state.feedback_color == "green":
         st.success(st.session_state.feedback)
     else:
         st.error(st.session_state.feedback)
     
-    # Auto-advance after showing feedback
+    # Generate new patch and clear feedback
     st.session_state.show_feedback = False
     generate_new_patch()
-elif st.session_state.feedback:
-    # Clear old feedback
-    st.session_state.feedback = ""
-
+    
 # Generate and display Gabor patch
-gabor = generate_gabor(
-    st.session_state.current_cpd,
-    st.session_state.current_orientation,
-    current_contrast
-)
+with st.container():
+    gabor = generate_gabor(
+        st.session_state.current_cpd,
+        st.session_state.current_orientation,
+        current_contrast
+    )
 
-# Create matplotlib figure
-fig, ax = plt.subplots(figsize=(8, 8))
-ax.imshow(gabor, cmap='gray', vmin=0, vmax=1)
-ax.set_xlabel('Degrees of visual angle', fontsize=11)
-ax.set_ylabel('Degrees of visual angle', fontsize=11)
-ax.set_title('What is the orientation?', fontsize=14, fontweight='bold')
-ax.axis('on')
+    # Create matplotlib figure
+    fig, ax = plt.subplots(figsize=(8, 8))
+    ax.imshow(gabor, cmap='gray', vmin=0, vmax=1)
+    ax.set_xlabel('Degrees of visual angle', fontsize=11)
+    ax.set_ylabel('Degrees of visual angle', fontsize=11)
+    ax.set_title('What is the orientation?', fontsize=14, fontweight='bold')
+    ax.axis('on')
 
-# Display the figure
-st.pyplot(fig)
-plt.close()
+    # Display the figure
+    st.pyplot(fig)
+    plt.close()
 
 # Answer buttons - directly under the patch
 st.markdown("### Select Orientation:")
 col1, col2, col3 = st.columns(3)
 
 with col1:
-    if st.button("← Horizontal (0°)", key="horizontal", use_container_width=True, type="primary"):
+    if st.button("← Horizontal (0°)", key="horizontal", use_container_width=True, type="primary", disabled=st.session_state.show_feedback):
         check_answer(0)
+        st.rerun()
 
 with col2:
-    if st.button("↑ Vertical (90°)", key="vertical", use_container_width=True, type="primary"):
+    if st.button("↑ Vertical (90°)", key="vertical", use_container_width=True, type="primary", disabled=st.session_state.show_feedback):
         check_answer(90)
+        st.rerun()
 
 with col3:
-    if st.button("↗ Diagonal (45°)", key="diagonal", use_container_width=True, type="primary"):
+    if st.button("↗ Diagonal (45°)", key="diagonal", use_container_width=True, type="primary", disabled=st.session_state.show_feedback):
         check_answer(45)
+        st.rerun()
 
 # Sidebar with info
 with st.sidebar:
