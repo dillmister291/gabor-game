@@ -26,7 +26,7 @@ if 'show_feedback' not in st.session_state:
     st.session_state.show_feedback = False
 
 # Game parameters
-CPD_OPTIONS = [3, 6, 12, 15]
+CPD_OPTIONS = [3, 6, 12, 18]
 ORIENTATION_OPTIONS = [0, 45, 90]
 ORIENTATION_NAMES = {0: "Horizontal (→)", 45: "Diagonal (↗)", 90: "Vertical (↑)"}
 
