@@ -136,7 +136,7 @@ if st.session_state.show_feedback:
         st.error(st.session_state.feedback)
     
     # Auto-advance after showing feedback
-    time.sleep(.5)
+    time.sleep(1.2)
     generate_new_patch()
     st.rerun()
 elif st.session_state.feedback:
@@ -153,13 +153,10 @@ gabor = generate_gabor(
 # Create matplotlib figure
 fig, ax = plt.subplots(figsize=(8, 8))
 ax.imshow(gabor, cmap='gray', vmin=0, vmax=1)
-ax.set_xlabel('Degrees of visual angle', fontsize=11)
-ax.set_ylabel('Degrees of visual angle', fontsize=11)
-ax.set_title('What is the orientation?', fontsize=14, fontweight='bold')
-ax.axis('on')
+ax.axis('off')  # Hide axis
 
 # Display the figure
-st.pyplot(fig)
+st.pyplot(fig, use_container_width=True)
 plt.close()
 
 # Answer buttons - directly under the patch
