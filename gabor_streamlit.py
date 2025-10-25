@@ -3,6 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from PIL import Image
 import io
+import time
 
 # Page configuration
 st.set_page_config(
@@ -22,8 +23,8 @@ if 'feedback' not in st.session_state:
     st.session_state.feedback = ""
 if 'feedback_color' not in st.session_state:
     st.session_state.feedback_color = "blue"
-if 'waiting_for_next' not in st.session_state:
-    st.session_state.waiting_for_next = False
+if 'show_feedback' not in st.session_state:
+    st.session_state.show_feedback = False
 
 # Game parameters
 CPD_OPTIONS = [3, 6, 12, 15]
@@ -71,11 +72,12 @@ def generate_new_patch():
     st.session_state.current_cpd = np.random.choice(CPD_OPTIONS)
     st.session_state.current_orientation = np.random.choice(ORIENTATION_OPTIONS)
     st.session_state.feedback = ""
-    st.session_state.waiting_for_next = False
+    st.session_state.show_feedback = False
 
 def check_answer(guessed_orientation):
     """Check if the answer is correct and update score"""
-    if st.session_state.waiting_for_next:
+    if st.session_state.show_feedback:
+        # Already showing feedback, ignore additional clicks
         return
     
     if guessed_orientation == st.session_state.current_orientation:
@@ -87,13 +89,12 @@ def check_answer(guessed_orientation):
         st.session_state.feedback = f"✗ Wrong! It was {correct_name}"
         st.session_state.feedback_color = "red"
     
-    st.session_state.waiting_for_next = True
+    st.session_state.show_feedback = True
 
 def reset_game():
     """Reset the game"""
     st.session_state.score = 0
     st.session_state.feedback = ""
-    st.session_state.waiting_for_next = False
     generate_new_patch()
 
 # Initialize game if needed
@@ -128,61 +129,57 @@ with col3:
         st.rerun()
 
 # Show feedback if available
-if st.session_state.feedback:
+if st.session_state.show_feedback:
     if st.session_state.feedback_color == "green":
         st.success(st.session_state.feedback)
     else:
         st.error(st.session_state.feedback)
+    
+    # Auto-advance after showing feedback
+    time.sleep(1.2)
+    generate_new_patch()
+    st.rerun()
+elif st.session_state.feedback:
+    # Clear old feedback
+    st.session_state.feedback = ""
 
 # Generate and display Gabor patch
-# Use a placeholder to keep position stable
-patch_placeholder = st.empty()
+gabor = generate_gabor(
+    st.session_state.current_cpd,
+    st.session_state.current_orientation,
+    current_contrast
+)
 
-with patch_placeholder.container():
-    gabor = generate_gabor(
-        st.session_state.current_cpd,
-        st.session_state.current_orientation,
-        current_contrast
-    )
+# Create matplotlib figure
+fig, ax = plt.subplots(figsize=(8, 8))
+ax.imshow(gabor, cmap='gray', vmin=0, vmax=1)
+ax.set_xlabel('Degrees of visual angle', fontsize=11)
+ax.set_ylabel('Degrees of visual angle', fontsize=11)
+ax.set_title('What is the orientation?', fontsize=14, fontweight='bold')
+ax.axis('on')
 
-    # Create matplotlib figure
-    fig, ax = plt.subplots(figsize=(8, 8))
-    ax.imshow(gabor, cmap='gray', vmin=0, vmax=1)
-    ax.set_xlabel('Degrees of visual angle', fontsize=11)
-    ax.set_ylabel('Degrees of visual angle', fontsize=11)
-    ax.set_title('What is the orientation?', fontsize=14, fontweight='bold')
-    ax.axis('on')
-
-    # Display the figure
-    st.pyplot(fig, use_container_width=True)
-    plt.close()
+# Display the figure
+st.pyplot(fig)
+plt.close()
 
 # Answer buttons - directly under the patch
 st.markdown("### Select Orientation:")
+col1, col2, col3 = st.columns(3)
 
-if st.session_state.waiting_for_next:
-    # Show "Next" button after answering
-    if st.button("➡️ Next Patch", use_container_width=True, type="secondary", key="next_button"):
-        generate_new_patch()
+with col1:
+    if st.button("← Horizontal (0°)", key="horizontal", use_container_width=True, type="primary"):
+        check_answer(0)
         st.rerun()
-else:
-    # Show answer buttons
-    col1, col2, col3 = st.columns(3)
 
-    with col1:
-        if st.button("← Horizontal (0°)", key="horizontal", use_container_width=True, type="primary"):
-            check_answer(0)
-            st.rerun()
+with col2:
+    if st.button("↑ Vertical (90°)", key="vertical", use_container_width=True, type="primary"):
+        check_answer(90)
+        st.rerun()
 
-    with col2:
-        if st.button("↑ Vertical (90°)", key="vertical", use_container_width=True, type="primary"):
-            check_answer(90)
-            st.rerun()
-
-    with col3:
-        if st.button("↗ Diagonal (45°)", key="diagonal", use_container_width=True, type="primary"):
-            check_answer(45)
-            st.rerun()
+with col3:
+    if st.button("↗ Diagonal (45°)", key="diagonal", use_container_width=True, type="primary"):
+        check_answer(45)
+        st.rerun()
 
 # Sidebar with info
 with st.sidebar:
