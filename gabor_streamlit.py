@@ -136,7 +136,7 @@ if st.session_state.show_feedback:
         st.error(st.session_state.feedback)
     
     # Auto-advance after showing feedback
-    time.sleep(1.2)
+    time.sleep(.1)
     generate_new_patch()
     st.rerun()
 elif st.session_state.feedback:
