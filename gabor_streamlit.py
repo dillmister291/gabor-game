@@ -126,7 +126,6 @@ with col2:
 with col3:
     if st.button("Reset Game", use_container_width=True):
         reset_game()
-        st.rerun()
 
 # Show feedback if available
 if st.session_state.show_feedback:
@@ -136,9 +135,8 @@ if st.session_state.show_feedback:
         st.error(st.session_state.feedback)
     
     # Auto-advance after showing feedback
-    time.sleep(1.2)
+    st.session_state.show_feedback = False
     generate_new_patch()
-    st.rerun()
 elif st.session_state.feedback:
     # Clear old feedback
     st.session_state.feedback = ""
@@ -169,17 +167,14 @@ col1, col2, col3 = st.columns(3)
 with col1:
     if st.button("← Horizontal (0°)", key="horizontal", use_container_width=True, type="primary"):
         check_answer(0)
-        st.rerun()
 
 with col2:
     if st.button("↑ Vertical (90°)", key="vertical", use_container_width=True, type="primary"):
         check_answer(90)
-        st.rerun()
 
 with col3:
     if st.button("↗ Diagonal (45°)", key="diagonal", use_container_width=True, type="primary"):
         check_answer(45)
-        st.rerun()
 
 # Sidebar with info
 with st.sidebar:
