@@ -119,13 +119,14 @@ st.markdown("---")
 current_contrast = calculate_contrast(st.session_state.score)
 col1, col2, col3 = st.columns(3)
 with col1:
-    st.metric("Score", st.session_state.score)
-with col2:
-    st.metric("Contrast", f"{current_contrast:.1%}")
-with col3:
     if st.button("Reset Game", use_container_width=True):
         reset_game()
         st.rerun()
+with col2:
+    st.metric("Contrast", f"{current_contrast:.1%}")
+with col3:
+    st.metric("Score", st.session_state.score)
+    
 
 # Show feedback if available
 if st.session_state.show_feedback:
@@ -188,9 +189,9 @@ with st.sidebar:
     - See how high you can score!
     
     **Settings:**
-    - Spatial frequencies: 3, 6, 12, 15 cpd
+    - Spatial frequencies: 3, 6, 12, 18 cpd
     - Orientations: 0°, 45°, 90°
-    - Contrast decay: 8% per correct answer
+    - Contrast decay: 15% per correct answer
     """)
     
     st.markdown("---")
